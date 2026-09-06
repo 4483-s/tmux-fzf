@@ -14,7 +14,7 @@ done
 
 target=$(printf "%s[cancel]" "$front_end_list" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
 
-[[ "$target" == "[cancel]" || -z "$target" ]] && exit
+[[ -z "$target" ]] && exit
 # get the next line in $TMUX_FZF_MENU and execute
 
 if [[ -z "$TMUX_FZF_MENU_POPUP" ]]; then

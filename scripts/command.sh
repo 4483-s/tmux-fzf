@@ -7,5 +7,5 @@ source "$CURRENT_DIR/.envs"
 target_origin=$(tmux list-commands)
 target=$(printf "[cancel]\n%s" "$target_origin" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS" | cut -d ' ' -f 1)
 
-[[ "$target" == "[cancel]" || -z "$target" ]] && exit
+[[ -z "$target" ]] && exit
 tmux command-prompt -I "$target"

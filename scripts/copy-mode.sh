@@ -49,5 +49,5 @@ source "$CURRENT_DIR/.envs"
 
 target=$(printf "[cancel]\n%s" "$copy_mode_commands" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS" | grep -o '^[^[:blank:]]*')
 
-[[ "$target" == "[cancel]" || -z "$target" ]] && exit
+[[ -z "$target" ]] && exit
 tmux send-keys -X "$target"

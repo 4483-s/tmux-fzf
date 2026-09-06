@@ -14,14 +14,14 @@ else
     action="$1"
 fi
 
-[[ "$action" == "[cancel]" || -z "$action" ]] && exit
+[[ -z "$action" ]] && exit
 
 content_raw="$(ps aux)"
 header=$(echo "$content_raw" | head -n 1)
 content=$(echo "$content_raw" | sed 1d)
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='$header'"
 ps_selected=$(printf "[cancel]\n$content" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
-[[ "$ps_selected" == "[cancel]" || -z "$ps_selected" ]] && exit
+[[ -z "$ps_selected" ]] && exit
 pid=$(echo "$ps_selected" | awk -F ' ' '{print $2}')
 user=$(echo "$ps_selected" | awk -F ' ' '{print $1}')
 _kill() { #{{{ _kill SIG PID USER

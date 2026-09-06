@@ -21,7 +21,7 @@ else
     action="$1"
 fi
 
-[[ "$action" == "[cancel]" || -z "$action" ]] && exit
+[[ -z "$action" ]] && exit
 if [[ "$action" != "detach" ]]; then
     if [[ "$action" == "kill" ]]; then
         FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select target session(s). Press TAB to mark multiple items.'"
@@ -54,7 +54,7 @@ else
     target_origin=$(printf "[current]\n%s\n[cancel]" "$sessions" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_SESSION_OPTIONS")
     target_origin=$(echo "$target_origin" | sed -E "s/\[current\]/$current_session:/")
 fi
-[[ "$target_origin" == "[cancel]" || -z "$target_origin" ]] && exit
+[[ -z "$target_origin" ]] && exit
 target=$(echo "$target_origin" | sed -e 's/:.*$//')
 if [[ "$action" == "switch" ]]; then
     tmux switch-client $TMUX_FZF_CLIENT_ARG -t "$target"
