@@ -14,7 +14,6 @@ fi
 
 if [[ "$action" == "system" ]]; then
     item_numbers=$(copyq count)
-    contents="[cancel]\n"
     index=0
     while [ "$index" -lt "$item_numbers" ]; do
         _content="$(copyq read ${index} | tr '\n' ' ' | tr '\\n' ' ')"

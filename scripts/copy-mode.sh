@@ -47,7 +47,7 @@ FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select a copy-mode command.'"
 CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CURRENT_DIR/.envs"
 
-target=$(printf "[cancel]\n%s" "$copy_mode_commands" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS" | grep -o '^[^[:blank:]]*')
+target=$(printf %s "$copy_mode_commands" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS" | grep -o '^[^[:blank:]]*')
 
 [[ -z "$target" ]] && exit
 tmux send-keys -X "$target"
