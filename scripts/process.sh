@@ -5,11 +5,7 @@ source "$CURRENT_DIR/.envs"
 
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
 if [[ -z "$1" ]]; then
-    if [ -x "$(command -v pstree)" ]; then
-        action=$(printf "display\ntree\nterminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
-    else
-        action=$(printf "display\nterminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
-    fi
+  action=$(printf "display\n$([ -x "$(command -v pstree)" ] && printf %s 'tree\n')terminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup"| eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
 else
     action="$1"
 fi
@@ -35,26 +31,32 @@ _kill() { #{{{ _kill SIG PID USER
         fi
     fi
 } #}}}
-if [[ "$action" == "display" ]]; then
-    if [[ "$(uname)" == "Linux" ]]; then
+case "$action" in
+    display)
         tmux split-window -v -l 50% -b -c '#{pane_current_path}' "top -p $pid"
-    else
-        tmux split-window -v -l 50% -b -c '#{pane_current_path}' "top -pid $pid"
-    fi
-elif [[ "$action" == "tree" ]]; then
-    pstree -p "$pid"
-elif [[ "$action" == "terminate" ]]; then
-    _kill TERM $pid $user
-elif [[ "$action" == "kill" ]]; then
-    _kill KILL $pid $user
-elif [[ "$action" == "interrupt" ]]; then
-    _kill INT $pid $user
-elif [[ "$action" == "continue" ]]; then
-    _kill CONT $pid $user
-elif [[ "$action" == "stop" ]]; then
-    _kill STOP $pid $user
-elif [[ "$action" == "quit" ]]; then
-    _kill QUIT $pid $user
-elif [[ "$action" == "hangup" ]]; then
-    _kill HUP $pid $user
-fi
+        ;;
+    tree)
+        pstree -p "$pid"
+        ;;
+    terminate)
+        _kill TERM $pid $user
+        ;;
+    kill)
+        _kill KILL $pid $user
+        ;;
+    interrupt)
+        _kill INT $pid $user
+        ;;
+    continue)
+        _kill CONT $pid $user
+        ;;
+    stop)
+        _kill STOP $pid $user
+        ;;
+    quit)
+        _kill QUIT $pid $user
+        ;;
+    hangup)
+        _kill HUP $pid $user
+        ;;
+esac
