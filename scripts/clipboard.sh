@@ -15,14 +15,15 @@ fi
 if [[ "$action" == "system" ]]; then
     item_numbers=$(copyq count)
     index=0
+    declare -A obj
     while [ "$index" -lt "$item_numbers" ]; do
-        _content=$(copyq read ${index})
-        _content="${_content//$'\n'/ }"
-        _content="${_content//'\n'/ }"
-        contents="${contents}copy${index}: ${_content}\n"
+        item_value=$(copyq read ${index})
+        # real newlines are converted to spaces, each key is a line in fzf
+        item_key="copy${index}: ${item_value//$'\n'/ }"
+        obj[$item_key]=$item_value
         index=$((index + 1))
     done
-    copyq_index=$(printf "$contents" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed -e 's/^copy//' -e 's/: .*//' | xargs -I{} copyq read {}\"" | sed -e 's/^copy//' -e 's/: .*//')
+    copyq_index=$(printf '%s\n' "${!obj[@]}"|sort -V| eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed -e 's/^copy//' -e 's/: .*//' | xargs -I, copyq read , 2> /dev/null\"" | sed -e 's/^copy//' -e 's/: .*//')
     [[ -z "$copyq_index" ]] && exit
     echo "$copyq_index" | xargs -I{} sh -c 'tmux set-buffer -b _temp_tmux_fzf "$(copyq read {})" && tmux paste-buffer -b _temp_tmux_fzf && tmux delete-buffer -b _temp_tmux_fzf'
 elif [[ "$action" == "buffer" ]]; then
