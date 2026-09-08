@@ -13,12 +13,7 @@ else
 fi
 
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
-if [[ -z "$1" ]]; then
-    action=$(printf "switch\nbreak\njoin\nswap\nlayout\nkill\nresize" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
-else
-    action="$1"
-fi
-
+action=${1:-$(printf "switch\nbreak\njoin\nswap\nlayout\nkill\nresize" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")}
 [[ -z "$action" ]] && exit
 if [[ "$action" == "layout" ]]; then
     FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select a layout.'"
@@ -65,25 +60,31 @@ else
     fi
     [[ -z "$target_origin" ]] && exit
     target=$(echo "$target_origin" | sed 's/: .*//')
-    if [[ "$action" == "switch" ]]; then
-        echo "$target" | sed -E 's/:.*//g' | xargs -I{} tmux switch-client $TMUX_FZF_CLIENT_ARG -t {}
-        echo "$target" | sed -E 's/\..*//g' | xargs -I{} tmux select-window -t {}
-        echo "$target" | xargs -I{} tmux select-pane -t {}
-    elif [[ "$action" == "kill" ]]; then
+    case $action in 
+      switch)
+        tmux switch-client $TMUX_FZF_CLIENT_ARG -t "${target%%:*}"
+        tmux select-window -t "${target%%.*}"
+        tmux select-pane -t "$target"
+        ;;
+      kill)
         echo "$target" | sort -r | xargs -I{} tmux kill-pane -t {}
-    elif [[ "$action" == "swap" ]]; then
+        ;;
+      swap)
         panes=$(echo "$panes" | grep -v "^$target")
         FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select another target pane.'"
         target_swap_origin=$(printf "%s" "$panes" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS $TMUX_FZF_PREVIEW_OPTIONS")
         [[ -z "$target_swap_origin" ]] && exit
         target_swap=$(echo "$target_swap_origin" | sed 's/: .*//')
         tmux swap-pane -s "$target" -t "$target_swap"
-    elif [[ "$action" == "join" ]]; then
+        ;;
+      join)
         echo "$target" | sort -r | xargs -I{} tmux move-pane -s {}
-    elif [[ "$action" == "break" ]]; then
+        ;;
+      break)
         cur_ses=$(tmux display-message -p $TMUX_FZF_CLIENT_ARG | sed -e 's/^.//' -e 's/].*//')
         last_win_num=$(tmux list-windows | sort -nr | head -1 | sed 's/:.*//')
         ((last_win_num_after = last_win_num + 1))
         tmux break-pane -s "$target" -t "$cur_ses":"$last_win_num_after"
-    fi
+        ;;
+    esac
 fi
