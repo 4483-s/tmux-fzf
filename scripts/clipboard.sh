@@ -16,7 +16,9 @@ if [[ "$action" == "system" ]]; then
     item_numbers=$(copyq count)
     index=0
     while [ "$index" -lt "$item_numbers" ]; do
-        _content="$(copyq read ${index} | tr '\n' ' ' | tr '\\n' ' ')"
+        _content=$(copyq read ${index})
+        _content="${_content//$'\n'/ }"
+        _content="${_content//'\n'/ }"
         contents="${contents}copy${index}: ${_content}\n"
         index=$((index + 1))
     done
