@@ -4,11 +4,7 @@ CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$CURRENT_DIR/.envs"
 
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='Select an action.'"
-if [[ -z "$1" ]]; then
-  action=$(printf "display\n$([ -x "$(command -v pstree)" ] && printf %s 'tree\n')terminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup"| eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
-else
-    action="$1"
-fi
+action=${1:-$(printf "display\n$([ -x "$(command -v pstree)" ] && printf %s 'tree\n')terminate\nkill\ninterrupt\ncontinue\nstop\nquit\nhangup"| eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")}
 
 [[ -z "$action" ]] && exit
 
@@ -16,7 +12,7 @@ content_raw="$(ps aux)"
 header=$(echo "$content_raw" | head -n 1)
 content=$(echo "$content_raw" | sed 1d)
 FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS --header='$header'"
-ps_selected=$(printf "$content" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
+ps_selected=$(printf %s "$content" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS")
 [[ -z "$ps_selected" ]] && exit
 pid=$(echo "$ps_selected" | awk -F ' ' '{print $2}')
 user=$(echo "$ps_selected" | awk -F ' ' '{print $1}')
