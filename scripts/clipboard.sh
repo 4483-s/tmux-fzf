@@ -13,14 +13,17 @@ else
 fi
 
 if [[ "$action" == "system" ]]; then
-    item_numbers=$(copyq count)
-    arr=()
-    for ((i = 0; i < item_numbers; i++)); do
-      item_value=$(copyq read ${i})
-      item_key="copy${i}: ${item_value//$'\n'/ }"
-      arr+=("$item_key")
-    done
-    copyq_index=$(printf '%s\n' "${arr[@]}"| eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed -e 's/^copy//' -e 's/: .*//' | xargs -I, copyq read , 2> /dev/null\"" | sed -e 's/^copy//' -e 's/: .*//')
+    all_items=$(copyq eval '
+      var out = [];
+      var len = size();
+      for (var i = 0; i < len; ++i) {
+        var val = str(read(i)).replace(/\r?\\n/g, " ");
+        out.push("copy" + i + ": " + val);
+      }
+      out.join("\\n");
+    ')
+
+    copyq_index=$(printf '%s\n' "$all_items" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed -e 's/^copy//' -e 's/: .*//' | xargs -I, copyq read , 2> /dev/null\"" | sed -e 's/^copy//' -e 's/: .*//')
     [[ -z "$copyq_index" ]] && exit
     while read -r i;do
       paste_content+=$(copyq read "$i")
