@@ -18,12 +18,12 @@ if [[ "$action" == "system" ]]; then
       var len = size();
       for (var i = 0; i < len; ++i) {
         var val = str(read(i)).replace(/\r?\\n/g, " ");
-        out.push("copy" + i + ": " + val);
+        out.push(i + ": " + val);
       }
       out.join("\\n");
     ')
 
-    copyq_index=$(printf '%s\n' "$all_items" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed -e 's/^copy//' -e 's/: .*//' | xargs -I, copyq read , 2> /dev/null\"" | sed -e 's/^copy//' -e 's/: .*//')
+    copyq_index=$(printf '%s\n' "$all_items" | eval "$TMUX_FZF_BIN $TMUX_FZF_OPTIONS --preview=\"echo {} | sed 's/: .*//' | xargs -I, copyq read , 2> /dev/null\"" | sed 's/: .*//')
     [[ -z "$copyq_index" ]] && exit
     while read -r i;do
       paste_content+=$(copyq read "$i")
