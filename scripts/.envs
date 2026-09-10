@@ -33,9 +33,9 @@ fi
 # $TMUX_FZF_OPTIONS
 tmux_version=$(tmux -V | grep -oE '[0-9]+\.[0-9]*')
 if greater_than $tmux_version 3.1; then
-  [[ -z $TMUX_FZF_OPTIONS ]] && TMUX_FZF_OPTIONS="-p -w 62% -h 38% -m"
+  [[ -z $TMUX_FZF_OPTIONS ]] && TMUX_FZF_OPTIONS="-p -w 62% -h 38% -m -- --cycle"
 else
-  [[ -z $TMUX_FZF_OPTIONS ]] && TMUX_FZF_OPTIONS="-m"
+  [[ -z $TMUX_FZF_OPTIONS ]] && TMUX_FZF_OPTIONS="-m -- --cycle"
 fi
 
 # $TMUX_FZF_CLIENT_ARG
